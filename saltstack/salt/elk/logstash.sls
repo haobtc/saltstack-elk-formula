@@ -30,6 +30,7 @@ logstash_conf.d input:
 logstash_conf.d output:
   file.managed:
     - name: /etc/logstash/conf.d/output.conf
-    - source: salt://elk/files/logstash/output.conf
+    - source: salt://elk/files/logstash/output.conf.jinja
+    - template: jinja
     - require:
       - pkg: logstash

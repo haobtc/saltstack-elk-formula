@@ -1,6 +1,6 @@
 include:
   - elk.common
-  - elk.elasticsearch
   - elk.logstash
+  - elk.elasticsearch
   - elk.kibana
 

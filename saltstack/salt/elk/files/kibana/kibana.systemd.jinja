@@ -1,0 +1,16 @@
+[Unit]
+Description=kibana
+Wants=basic.target
+After=basic.target network.target
+
+[Service]
+User=logstash
+Group=logstash
+ExecStart=/opt/kibana/bin/kibana -H 0.0.0.0
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=always
+RestartSec=42s
+
+[Install]
+WantedBy=multi-user.target

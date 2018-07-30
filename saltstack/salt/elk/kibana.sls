@@ -23,6 +23,11 @@ kibana_init:
     - name: /etc/init/kibana.conf
     - source: salt://elk/files/kibana/kibana_upstart.conf
 
+kibana_service_init:
+  file.managed:
+    - name: /etc/systemd/system/kibana.service
+    - source: salt://elk/files/kibana/kibana.systemd.jinja
+
 kibana_service:
   service.running:
     - name: kibana
