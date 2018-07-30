@@ -1,0 +1,60 @@
+{%- set sources = [
+] %}
+
+{%- set sources_access_log = [] %}
+{%- for source in sources %}
+  {%- do sources_access_log.append('/var/log/nginx/'+ source +'.access.log') %}
+{%- endfor %}
+
+{%- set sources_error_log = [] %}
+{%- for source in sources %}
+  {% do sources_error_log.append('/var/log/nginx/'+ source +'.error.log') -%}
+{%- endfor %}
+
+output {
+    elasticsearch {
+           hosts => "127.0.0.1:9200"
+     }
+    # stdout {
+    #     codec => rubydebug
+    #  }
+
+    if [fileset][name] == "access" {
+      {%- for source in sources %}
+      if [source] == "/var/log/nginx/{{ source }}.access.log" {
+          file {
+              path => "/var/log/logstash/nginx/%{+YYYY-MM-dd}/{{ source }}.access.log"
+              codec => line { format => "%{[host][name]}: %{message}"}
+          }
+        }
+      {%- endfor %}
+      if [source] not in {{ sources_access_log }} {
+          file {
+              path => "/var/log/logstash/nginx/%{+YYYY-MM-dd}/access.log"
+              codec => line { format => "%{[host][name]}: %{message}"}
+          }
+      }
+    }
+    else if [fileset][name] == "error" {
+      {%- for source in sources %}
+      if [source] == "/var/log/nginx/{{ source }}.error.log" {
+          file {
+              path => "/var/log/logstash/nginx/%{+YYYY-MM-dd}/{{ source }}.error.log"
+              codec => line { format => "%{[host][name]}: %{message}"}
+          }
+        }
+      {%- endfor %}
+      if [source] not in {{ sources_error_log }} {
+          file {
+              path => "/var/log/logstash/nginx/%{+YYYY-MM-dd}/error.log"
+              codec => line { format => "%{[host][name]}: %{message}"}
+          }
+        }
+    } else {
+      file {
+          path => "/var/log/logstash/nginx/%{+YYYY-MM-dd}/err.log"
+          codec => line { format => "hostname(%{[host][name]}):%{[fileset][name]}: %{message}"}
+      }
+    }
+
+}
